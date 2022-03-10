@@ -12,18 +12,18 @@ while [ true ]; do
 
 	#if [[ $input =~ /stop/i ]]; then
 	#if [[ $input == "STOP" || $input == "stop" ]]; then
-	if [[ ${input^^} == "STOP" ]]; then
+	if [[ ${input,,} == "stop" ]]; then
 		break
 	#else if
 	elif [[ -z $input ]]; then
 		echo "empty input found, please try again"
 
 	fi
-	#if [[ -n $input ]]; then
-	#	if  [[ ${#input} > 5 ]]; then
-	#		echo "input longer than 5 characters"
-	#	fi
-	#fi
+	if [[ -n $input ]]; then
+		if  [[ ${#input} > 5 ]]; then
+			echo "input longer than 5 characters"
+		fi
+	fi
 	#echo $input + $timestamp >> ./ClockInOut.txt
 	EmployeeNames+=("$input:$timestamp")
 	sleep 2
