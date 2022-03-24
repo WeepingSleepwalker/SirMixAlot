@@ -1,14 +1,37 @@
+using System.Xml.Serialization;
+
 namespace BankAccounts
 {
-    abstract class Account
+     class Account
     {
+
         //Fields
+        private static int accountSeed= 111111;
         public string? accountName;
         protected int accountNumber;
-        protected double accountBalance;
+        protected double accountBalance
+        {
+            get
+            {
+                double balance = 0;
+                foreach(var item in allTransactions)
+                {
+                    balance += item.Amount;
+                }
+                return balance;
+            }
+        }
         protected double interestRate;
 
+        private List<Transaction> allTransactions = new List<Transaction>();
 
+        public XmlSerializer Serializer {get;} = new( typeof(List<Transaction>));
+
+        protected Account()
+        {
+            this.accountNumber = accountSeed;
+            accountSeed++;
+        }
         //Constructor
         // public Account(string accountName, int accountNumber, double accountBalance, decimal interestRate)
         // {
@@ -34,16 +57,53 @@ namespace BankAccounts
              return this.interestRate;
          }
 
-         public abstract void Withdrawl(double withdrawl );
+         public void Withdrawl(double amount, string note = "" )
+         {
+         if(amount<0)
+           {
+               Console.WriteLine("Withdrawls must be a positive value");
+               Console.WriteLine("transaction canceled");
+               return;
+           } 
+           else if((this.accountBalance - amount) < 0)
+           {
+               Console.WriteLine("balance may not go below zero");
+               Console.WriteLine("Transation canceled");
+               return;
+           }
+           else
+           {
+            //    this.accountBalance -= withdrawl;
+            //    this.Record(-withdrawl);
+            var withdrawl = new Transaction(-amount, DateTime.Now, note);
+            allTransactions.Add(withdrawl);
+
+           }
+         }
 
 
-         public abstract void Deposit(double deposit);
+         public void Deposit(double amount, string note = ""){
+            if(amount<0)
+            {
+               Console.WriteLine("Deposit must be a positive value");
+               Console.WriteLine("transaction canceled");
+               return;
+            }
+            else
+           {
+            //    this.accountBalance += deposit;
+            //    this.Record(deposit);
+            var deposit = new Transaction(amount, DateTime.Now, note);
+            allTransactions.Add(deposit);
+           } 
+        }
+         
 
-         protected void Record(double TranactionAmount)
+         protected void Record(double TransactionAmount)
          {  
              DateTime Current = DateTime.Now;
 
-             string[] content = {(Current.ToString("F")) + this.accountNumber + "\t" + this.accountName + "\t" + TranactionAmount + "\t" + this.accountBalance};
+             string[] content = {(Current.ToString("F")) + this.accountNumber + "\t" + this.accountName + "\t" + TransactionAmount + "\t" + this.accountBalance};
              string path = @"./TransactionRecords.txt";
 
              if(!File.Exists(path))
@@ -57,6 +117,16 @@ namespace BankAccounts
                  File.AppendAllLines(path, content);
                  File.Create(path).Close();
              }
+         }
+
+         public void SerializeAsXml()
+         {
+             var newStringWriter = new StringWriter();
+             Serializer.Serialize(newStringWriter, allTransactions);
+             newStringWriter.Close();
+
+             string path = $"./Transactions-{this.accountNumber}.xml";
+             File.WriteAllText(path, newStringWriter.ToString());
          }
      
     }
