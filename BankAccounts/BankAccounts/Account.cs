@@ -2,7 +2,7 @@ using System.Xml.Serialization;
 
 namespace BankAccounts
 {
-     class Account
+     public class Account
     {
 
         //Fields
@@ -57,6 +57,10 @@ namespace BankAccounts
              return this.interestRate;
          }
 
+        public int GetTransactionCount()
+        {
+            return this.allTransactions.Count;
+        }
          public void Withdrawl(double amount, string note = "" )
          {
          if(amount<0)

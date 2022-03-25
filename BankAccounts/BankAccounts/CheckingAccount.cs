@@ -1,6 +1,6 @@
 namespace BankAccounts
 {
-    class CheckingAccount : Account
+    public class CheckingAccount : Account
     {
         //Feilds
 
